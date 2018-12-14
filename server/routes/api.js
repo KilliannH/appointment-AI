@@ -7,7 +7,7 @@ var Sequelize = require('sequelize');
 const config = require('../config/database');
 
 //Connect to Postgre
-const sequelize = new Sequelize(config.database);
+const sequelize = new Sequelize(config.postgresPath);
 
 //Db connection
 sequelize
