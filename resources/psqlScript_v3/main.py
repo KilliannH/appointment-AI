@@ -33,7 +33,8 @@ cur = con.cursor()
 
 cur.execute('DROP TABLE IF EXISTS Appointments CASCADE')
 
-cur.execute('CREATE TABLE Appointments(id_user SERIAL PRIMARY KEY NOT NULL, name VARCHAR(255) NOT NULL, date BIGINT NOT NULL, created_date BIGINT NOT NULL, sent BOOLEAN, voice_alerted BOOLEAN)')
+cur.execute('CREATE TABLE Appointments(id SERIAL PRIMARY KEY NOT NULL, name VARCHAR(255) NOT NULL, date BIGINT NOT NULL, created_date BIGINT NOT NULL, sent BOOLEAN, voice_alerted BOOLEAN)')
 
+print('Script finished successfully')
 cur.close()
 con.close()
