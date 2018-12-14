@@ -21,7 +21,7 @@ for item in results:
         break
 
 if db_found is False:
-    cur.execute('CREATE DATABASE ' + dbname)
+    cur.execute('CREATE DATABASE ' + '"' + dbname + '"')
 else:
     print('You already have a database called ' + dbname + ', trying to connect to it')
 cur.close()
