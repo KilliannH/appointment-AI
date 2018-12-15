@@ -76,7 +76,15 @@ router.get('/appointments/period=:period', function (req, res) {
     //Tools
     let today = Date.now();
     let tomorrow = moment(today).add(1, 'd').endOf('day');
-    let nextSunday = moment().day("Saturday").add(1, 'd').endOf('day');
+    let nextSunday;
+    if(moment(today).get('day') !== 6) {
+        nextSunday = moment().day("Saturday").add(1, 'd').endOf('day');
+    } else {
+        nextSunday = moment().add(8, 'd').endOf('day');
+        console.log(nextSunday);
+
+    }
+    //console.log(nextSunday);
     let endOfMonth = moment().endOf('month');
 
     let output = [];
