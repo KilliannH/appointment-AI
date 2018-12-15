@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import signal
 import snowboydecoder as snowboydecoder
 import speech_recognition as sr  # Speech to text recognition
