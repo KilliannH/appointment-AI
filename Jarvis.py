@@ -1,3 +1,4 @@
+# coding=utf-8
 from gtts import gTTS   # Text to speech
 import locale
 import datetime
