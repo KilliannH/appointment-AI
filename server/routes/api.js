@@ -133,7 +133,7 @@ router.post('/appointments', (req, res) => {
     let createdDate = Date.now();
     createdDate = createdDate / 1000;
     createDate = createdDate.toString();
-    createdDate = parseInt(createdDate.split('.')[0]);
+    createdDate = createdDate.split('.')[0];
 
     Appointment.create({
         name: req.body.name,
