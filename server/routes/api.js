@@ -130,10 +130,8 @@ router.get('/appointments/period=:period', function (req, res) {
 /// POST NEW Appointment ///
 router.post('/appointments', (req, res) => {
 
-    let createdDate = Date.now();
-    createdDate = createdDate / 1000;
-    createDate = createdDate.toString();
-    createdDate = createdDate.split('.')[0];
+    let createdDate = Date.now()
+    createdDate = parseInt(createdDate / 1000);
 
     Appointment.create({
         name: req.body.name,
