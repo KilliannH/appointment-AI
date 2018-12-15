@@ -30,8 +30,8 @@ class Jarvis:
                                    "cette semaine": "thisWeek", "la semaine prochaine": "nextWeek",
                                    "ce mois ci": "thisMonth"}
 
- ########       self.appointments = self.get_appointments_for_period("")
-        # on init we got all appointments from db
+        self.appointments = self.get_appointments_for_period("")
+        # on init we get all appointments from db
 
     @staticmethod
     def speak(text_to_speech):
