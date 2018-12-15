@@ -5,9 +5,10 @@ import datetime
 import time
 import os
 import json
-import http.client
+import requests
 
-conn = http.client.HTTPConnection("localhost", 3000)
+HOST = "http://localhost"
+PORT = ":3000"
 
 class Jarvis:
     def __init__(self):
@@ -370,6 +371,7 @@ class Jarvis:
 #            /////* CRUD PART */
 
     def get_appointments_for_period(self, period):
+        url = HOST + PORT
         for key, value in self.dict_date_keywords.items():
             if key in period:
                 period = value
@@ -378,16 +380,18 @@ class Jarvis:
 
         if period == "":
             # get all appointments
-            conn.request("GET", "/api/appointments")
+            url += "/api/appointments"
         else:
             # get appointments by period
-            conn.request("GET", "/api/appointments/period="+period) # period dates in body
-        response = conn.getresponse()
-        appointments = json.loads(response.read())
+            url += ("/api/appointments/period="+period)  # period dates in body
+        response = requests.get(url)
+        appointments = response.json()
+        print(appointments)
         return appointments
 
     @staticmethod
     def post_appointment(appointment_infos):
+        url = HOST + PORT
         headers = {'Content-type': 'application/json'}
 
         appointment = {'date': appointment_infos[0].strftime('%s'), # timestamp format
@@ -396,9 +400,8 @@ class Jarvis:
 
         json_appointment = json.dumps(appointment)
 
-        conn.request("POST", "/api/appointments", json_appointment, headers)
-        response = conn.getresponse()
-        return print(response.status)
+        response = requests.post(url + "/api/appointments", json_appointment, headers)
+        return print(response.status_code)
 
     @staticmethod
     def get_appointments_list_names_dates(appointments):
