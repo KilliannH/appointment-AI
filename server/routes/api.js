@@ -129,10 +129,16 @@ router.get('/appointments/period=:period', function (req, res) {
 
 /// POST NEW Appointment ///
 router.post('/appointments', (req, res) => {
+
+    let createdDate = Date.now();
+    createdDate = createdDate / 1000;
+    createDate = createdDate.toString();
+    createdDate = parseInt(createdDate.split('.')[0]);
+
     Appointment.create({
         name: req.body.name,
         date: req.body.date,
-        created_date: Date.now(),
+        created_date: createdDate,
         sent: false,
         voice_alerted: false
     }).then((appointment) => appointment ? res.json(appointment) : res.json({success: false, message: "failed to post appointment"}))
