@@ -2,3 +2,4 @@
 __pycache__
 _snowboydetect.so
 snowboydetect.py
+net.py

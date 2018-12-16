@@ -1,1 +1,20 @@
 new try of appointment ai project
+
+todo : returning alternative dates from backend for next week appointment list :
+"Dentiste lundi prochain"
+
+- delete last rdv
+- delete by name
+- delete all
+
+- get today's date
+
+- handles multiple words appointment names
+
+- handles hours
+
+- front dashboard with auth
+
+- tests, errors handling
+
+- send notifications by mail / alert by voice if connected by wifi

@@ -6,6 +6,7 @@ import time
 import os
 import json
 import requests
+import net
 
 HOST = "http://localhost"
 PORT = ":3000"
@@ -82,37 +83,130 @@ class Jarvis:
             else:
                 self.speak("Vous n'avez pas de rendez-vous pour cette période.")
 
-        if "liste les rendez-vous" in audiosource:
-            '''list_by_keywords = audiosource.split("rendez-vous")[1]
+        elif "liste les rendez-vous" in audiosource:
+            list_by_keywords = audiosource.split("rendez-vous")[1]
             list_by_keywords = list_by_keywords.split(" ")
 
             keyword_detected = ""
 
             date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
+            print(date_keyword_string)
 
-            for keyword in self.list_date_keywords:
-                if keyword in date_keyword_string:
-                    keyword_detected = keyword
+            for key, value in self.dict_date_keywords.items():
+                if key in date_keyword_string:
+                    keyword_detected = key
 
-            #appointments_for_period = getAppointmentsForPeriods(keywordDetected)
+            if keyword_detected != "":
+                appointments_for_period = self.get_appointments_for_period(keyword_detected)
+            else:
+                appointments_for_period = self.appointments # no query in db needed, just list them all
+
             appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
-            self.speak(appointment_list)'''
 
-        if "liste des rendez-vous" in audiosource:
-            appointment_list = self.get_appointments_list_names_dates()
-            self.speak(appointment_list)
+            if appointment_list != "":
+                self.speak(appointment_list)
+            else:
+                self.speak("Vous n'avez pas de rendez-vous pour cette période.")
 
-        if "liste moi les événements" in audiosource:
-            appointment_list = self.get_appointments_list_names_dates()
-            self.speak(appointment_list)
+        elif "liste des rendez-vous" in audiosource:
+            list_by_keywords = audiosource.split("rendez-vous")[1]
+            list_by_keywords = list_by_keywords.split(" ")
 
-        if "liste les événements" in audiosource:
-            appointment_list = self.get_appointments_list_names_dates()
-            self.speak(appointment_list)
+            keyword_detected = ""
 
-        if "liste des événements" in audiosource:
-            appointment_list = self.get_appointments_list_names_dates()
-            self.speak(appointment_list)
+            date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
+            print(date_keyword_string)
+
+            for key, value in self.dict_date_keywords.items():
+                if key in date_keyword_string:
+                    keyword_detected = key
+
+            if keyword_detected != "":
+                appointments_for_period = self.get_appointments_for_period(keyword_detected)
+            else:
+                appointments_for_period = self.appointments  # no query in db needed, just list them all
+
+            appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
+
+            if appointment_list != "":
+                self.speak(appointment_list)
+            else:
+                self.speak("Vous n'avez pas de rendez-vous pour cette période.")
+
+        elif "liste moi les événements" in audiosource:
+            list_by_keywords = audiosource.split("rendez-vous")[1]
+            list_by_keywords = list_by_keywords.split(" ")
+
+            keyword_detected = ""
+
+            date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
+            print(date_keyword_string)
+
+            for key, value in self.dict_date_keywords.items():
+                if key in date_keyword_string:
+                    keyword_detected = key
+
+            if keyword_detected != "":
+                appointments_for_period = self.get_appointments_for_period(keyword_detected)
+            else:
+                appointments_for_period = self.appointments  # no query in db needed, just list them all
+
+            appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
+
+            if appointment_list != "":
+                self.speak(appointment_list)
+            else:
+                self.speak("Vous n'avez pas de rendez-vous pour cette période.")
+
+        elif "liste les événements" in audiosource:
+            list_by_keywords = audiosource.split("rendez-vous")[1]
+            list_by_keywords = list_by_keywords.split(" ")
+
+            keyword_detected = ""
+
+            date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
+            print(date_keyword_string)
+
+            for key, value in self.dict_date_keywords.items():
+                if key in date_keyword_string:
+                    keyword_detected = key
+
+            if keyword_detected != "":
+                appointments_for_period = self.get_appointments_for_period(keyword_detected)
+            else:
+                appointments_for_period = self.appointments  # no query in db needed, just list them all
+
+            appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
+
+            if appointment_list != "":
+                self.speak(appointment_list)
+            else:
+                self.speak("Vous n'avez pas de rendez-vous pour cette période.")
+
+        elif "liste des événements" in audiosource:
+            list_by_keywords = audiosource.split("rendez-vous")[1]
+            list_by_keywords = list_by_keywords.split(" ")
+
+            keyword_detected = ""
+
+            date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
+            print(date_keyword_string)
+
+            for key, value in self.dict_date_keywords.items():
+                if key in date_keyword_string:
+                    keyword_detected = key
+
+            if keyword_detected != "":
+                appointments_for_period = self.get_appointments_for_period(keyword_detected)
+            else:
+                appointments_for_period = self.appointments  # no query in db needed, just list them all
+
+            appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
+
+            if appointment_list != "":
+                self.speak(appointment_list)
+            else:
+                self.speak("Vous n'avez pas de rendez-vous pour cette période.")
 
         # CREATE APPOINTMENT
 
@@ -141,6 +235,7 @@ class Jarvis:
                 actually_guessed_day = str(appointment_date.day)
 
             appointment = appointment_date, actually_guessed_name
+            print(appointment)
             self.post_appointment(appointment)
             self.speak("J'ai créé un rendez vous, " + actually_guessed_name + " le " + str(appointment_date.strftime('%A ')) + str(actually_guessed_day) + str(appointment_date.strftime('%B' '%Y')))
 

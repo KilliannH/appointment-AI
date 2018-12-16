@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 import signal
+import sys
 import snowboydecoder as snowboydecoder
 import speech_recognition as sr  # Speech to text recognition
 from Jarvis import Jarvis
 
 jarvis = Jarvis()
 interrupted = False
+
+process_ENV = sys.argv[1]
+
+
 
 def audioRecorderCallback(fname):
     print("Snowdboy_engine : converting audio to text")
@@ -38,20 +43,28 @@ def interrupt_callback():
     global interrupted
     return interrupted
 
-model = 'jarvis.pmdl'
 
-# capture SIGINT signal, e.g., Ctrl+C
-signal.signal(signal.SIGINT, signal_handler)
+if process_ENV == 'PROD':
+    model = 'jarvis.pmdl'
 
-detector = snowboydecoder.HotwordDetector(model, sensitivity=0.38)
-print('Listening... Press Ctrl+C to exit')
+    # capture SIGINT signal, e.g., Ctrl+C
+    signal.signal(signal.SIGINT, signal_handler)
 
-# main loop
-detector.start(detected_callback= detectedCallback,
-               audio_recorder_callback= audioRecorderCallback,
-               interrupt_check=interrupt_callback,
-               sleep_time=0.01,
-               silent_count_threshold=4)
+    detector = snowboydecoder.HotwordDetector(model, sensitivity=0.38)
+    print('Listening... Press Ctrl+C to exit')
 
-# do not uncomment this line for keeping hotword detection loop
-# detector.terminate()
+    # main loop
+    detector.start(detected_callback= detectedCallback,
+                   audio_recorder_callback= audioRecorderCallback,
+                   interrupt_check=interrupt_callback,
+                   sleep_time=0.01,
+                   silent_count_threshold=4)
+
+    # do not uncomment this line for keeping hotword detection loop
+    # detector.terminate()
+
+elif process_ENV == 'DEBUG':
+    try:
+        jarvis.think(sys.argv[2])
+    except IndexError:
+        print(" Please enter a sentence in arg 2 w. quotes")
