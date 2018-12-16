@@ -19,7 +19,7 @@ sequelize
         console.error('Unable to connect to the database:', err);
     });
 
-//init song model
+//init appointment model
 const Appointment = sequelize.define('Appointments', {
 
     name: {

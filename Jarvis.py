@@ -237,7 +237,9 @@ class Jarvis:
             appointment = appointment_date, actually_guessed_name
             print(appointment)
             self.post_appointment(appointment)
-            self.speak("J'ai créé un rendez vous, " + actually_guessed_name + " le " + str(appointment_date.strftime('%A ')) + str(actually_guessed_day) + str(appointment_date.strftime('%B' '%Y')))
+            self.speak("J'ai créé un rendez vous, " + actually_guessed_name + " le " + str(
+                appointment_date.strftime('%A ')) + str(actually_guessed_day) + ' ' + str(
+                appointment_date.strftime('%B ' '%Y')))
 
         elif "nouveau rendez-vous" in audiosource:
             appointment_infos = self.split_once_appointment_infos(audiosource)
@@ -265,7 +267,9 @@ class Jarvis:
 
             appointment = appointment_date, actually_guessed_name
             self.post_appointment(appointment)
-            self.speak("J'ai créé un rendez vous, " + actually_guessed_name + " le " + str(appointment_date.strftime('%A ')) + str(actually_guessed_day) + str(appointment_date.strftime('%B' '%Y')))
+            self.speak("J'ai créé un rendez vous, " + actually_guessed_name + " le " + str(
+                appointment_date.strftime('%A ')) + str(actually_guessed_day) + ' ' + str(
+                appointment_date.strftime('%B ' '%Y')))
 
     @staticmethod
     def split_once_appointment_infos(full_message):
@@ -487,15 +491,13 @@ class Jarvis:
     @staticmethod
     def post_appointment(appointment_infos):
         url = HOST + PORT
-        headers = {'Content-type': 'application/json'}
+        # headers = {'Content-type': 'application/json'}
 
-        appointment = {'date': appointment_infos[0].strftime('%s'), # timestamp format
+        appointment = {'date': appointment_infos[0].strftime('%s'),  # timestamp format
                        'name': appointment_infos[1],
                        'created_date': datetime.date.today().strftime('%s')}
 
-        json_appointment = json.dumps(appointment)
-
-        response = requests.post(url + "/api/appointments", json_appointment, headers)
+        response = requests.post(url + "/api/appointments", json=appointment)
         return print(response.status_code)
 
     @staticmethod
