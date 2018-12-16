@@ -3,5 +3,5 @@ __pycache__
 _snowboydetect.so
 snowboydetect.py
 net.py
-standford-postagger.jar
+stanford-postagger.jar
 models
