@@ -23,9 +23,9 @@ TOP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 print(TOP_DIR)
 
-RESOURCE_FILE = TOP_DIR + "/resources/common.res"
-DETECT_DING = TOP_DIR + "/resources/ding.wav"
-DETECT_DONG = TOP_DIR + "/resources/dong.wav"
+RESOURCE_FILE = TOP_DIR + "/resources/snowboy/common.res"
+DETECT_DING = TOP_DIR + "/resources/snowboy/ding.wav"
+DETECT_DONG = TOP_DIR + "/resources/snowboy/dong.wav"
 
 def py_error_handler(filename, line, function, err, fmt):
     pass

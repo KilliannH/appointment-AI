@@ -2,5 +2,7 @@ pyaudio
 SpeechRecognition
 gTTS
 
+nltk
+
 psycopg2
 requests

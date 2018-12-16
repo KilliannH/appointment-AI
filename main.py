@@ -11,8 +11,7 @@ interrupted = False
 process_ENV = sys.argv[1]
 
 
-
-def audioRecorderCallback(fname):
+def audio_recorder_callback(fname):
     print("Snowdboy_engine : converting audio to text")
     r = sr.Recognizer()
     with sr.AudioFile(fname) as source:
@@ -31,8 +30,9 @@ def audioRecorderCallback(fname):
     return jarvis.think(data)
 
 
-def detectedCallback():
+def detected_callback():
     snowboydecoder.play_audio_file()
+
 
 def signal_handler(signal, frame):
     global interrupted
@@ -54,8 +54,8 @@ if process_ENV == 'PROD':
     print('Listening... Press Ctrl+C to exit')
 
     # main loop
-    detector.start(detected_callback= detectedCallback,
-                   audio_recorder_callback= audioRecorderCallback,
+    detector.start(detected_callback= detected_callback,
+                   audio_recorder_callback=audio_recorder_callback,
                    interrupt_check=interrupt_callback,
                    sleep_time=0.01,
                    silent_count_threshold=4)

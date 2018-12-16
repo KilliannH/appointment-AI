@@ -1,6 +1,17 @@
 new try of appointment ai project
 
-todo : returning alternative dates from backend for next week appointment list :
+// ---------------------------------------------------------------------------------------------
+
+Libraries : python3 : gTTS, SpeechRecognition, snowboy, nltk for Stanford Part-Of-Speech Tagger,
+pyaudio, psycopg2
+
+snowboy dependancies : Swig, libpcre3-dev, libatlas-base-dev, flac, mpg123
+
+nltk dependancies : path to : standford-postagger.jar, french.tagger
+
+--------------------------------------------------------------------------------------------- //
+
+returning alternative dates from backend for next week appointment list :
 "Dentiste lundi prochain"
 
 - delete last rdv
@@ -10,6 +21,9 @@ todo : returning alternative dates from backend for next week appointment list :
 - get today's date
 
 - handles multiple words appointment names
+
+TODO - In progress : refactor the jarvis.think function :
+Implement Stanford POS Tagger to parse strings.
 
 - handles hours
 
