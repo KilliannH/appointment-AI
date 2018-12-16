@@ -6,10 +6,25 @@ import time
 import os
 import json
 import requests
+
+# getting the user ip by ping
 import net
+
+# Parsing strings with tagger
+from nltk.tag import StanfordPOSTagger
+import os
+
+# Const
+TOP_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL = TOP_DIR + '/resources/standford_tagger/models/french.tagger'
+JAR_FILE = TOP_DIR + '/resources/standford_tagger/stanford-postagger.jar'
 
 HOST = "http://localhost"
 PORT = ":3000"
+
+# init stanford tagger
+st = StanfordPOSTagger(MODEL, JAR_FILE)
+
 
 class Jarvis:
     def __init__(self):
@@ -20,18 +35,23 @@ class Jarvis:
         self.years = date_stuff[2],
         self.days_in_numbers = date_stuff[3]
         self.ignored_words = ["le", "la", "les", "de", "d'", "du", "des", "un", "une", "à la", "de la", "aux", "de l'"]
-        self.common_date_keywords = ["aujourd'hui", "demain", "après demain",
-                                      "dans deux jours", "dans trois jours",
-                                      "la semaine prochaine", "dans une semaine",
-                                      "dans deux semaines", " dans quinze jours",
-                                      "lundi prochain", "mardi prochain",
-                                      "mercredi prochain", "jeudi prochain",
-                                      "vendredi prochain", "samedi prochain",
-                                      "dimanche prochain"]
+        self.common_date_keywords = [
+            "aujourd'hui", "demain", "après demain",
+            "dans deux jours", "dans trois jours",
+            "la semaine prochaine", "dans une semaine",
+            "dans deux semaines", " dans quinze jours",
+            "lundi prochain", "mardi prochain",
+            "mercredi prochain", "jeudi prochain",
+            "vendredi prochain", "samedi prochain",
+            "dimanche prochain"]
 
-        self.dict_date_keywords = {"aujourd'hui": "today", "demain": "tomorrow",
-                                   "cette semaine": "thisWeek", "la semaine prochaine": "nextWeek",
-                                   "ce mois ci": "thisMonth"}
+        self.dict_date_keywords = {
+            "aujourd'hui": "today",
+            "demain": "tomorrow",
+            "cette semaine": "thisWeek",
+            "la semaine prochaine": "nextWeek",
+            "ce mois ci": "thisMonth"
+        }
 
         self.appointments = self.get_appointments_for_period("")
         # on init we get all appointments from db
@@ -73,16 +93,14 @@ class Jarvis:
             return self.speak("Vous n'avez pas de rendez-vous pour cette période.")
 
     def create_appointment(self, audiosource):
-        appointment_infos = self.split_once_appointment_infos(audiosource)
-        first_guess = self.guess_date(appointment_infos)
-        actually_guessed_year = first_guess[0]
-        actually_guessed_month = first_guess[1]
-        actually_guessed_day = first_guess[2]
+        appointment_infos = self.split_appointment_infos(audiosource)
+        first_guessed_date = self.guess_date(appointment_infos)
+        print(appointment_infos)
 
-        actually_guessed_name = first_guess[3]
+##### I'm there handling names in stanford postagger way
 
         try:
-            appointment_date = datetime.date(actually_guessed_year, actually_guessed_month, actually_guessed_day)
+            appointment_date = datetime.date(first_guessed_date[0], first_guessed_date[1], first_guessed_date[2])
         except ValueError:
             print("Oops!  That was no valid date.  Try again...")
             second_guess = self.guess_date_and_name_with_dates_keywords(appointment_infos)
@@ -137,14 +155,14 @@ class Jarvis:
             self.create_appointment(audiosource)
 
     @staticmethod
-    def split_once_appointment_infos(full_message):
+    def split_appointment_infos(full_message):
         # process
-        split_first_time = full_message.split("rendez-vous")[1]
-        if split_first_time[0] == " ":
-            split_first_time = split_first_time[1:len(split_first_time)]
+        split_once = full_message.split("rendez-vous")[1]
+        if split_once[0] == " ":
+            split_once = split_once[1:len(split_once)]
             # we have all infos said after word "rendez-vous"
 
-        appointment_infos = split_first_time.split(" ")
+        appointment_infos = st.tag(split_once.split())
         return appointment_infos
 
 #            /////* GUESS PART */
@@ -152,83 +170,52 @@ class Jarvis:
     def guess_date(self, appointment_infos):
         print(appointment_infos)
         year_founded_parsed = 0
-        year_founded = ""
-
-        # each time there is a parsed version (to easily convert to date)
-        # and a non parsed to store what's left
-
         month_founded_parsed = 0
-        month_founded = ""
-
         day_founded_parsed = 0
-        day_founded = ""
-
         weekday_founded = ""
-
-        name_founded_array = []
-        name_founded = ""
-
-        ignored_words_founded = {}
 
         # found year in appointment infos
         for i in range(0, len(appointment_infos)):
             for year in self.years:
-                if appointment_infos[i] in year:
-                    print("year found : " + appointment_infos[i])
-                    year_founded_parsed = int(appointment_infos[i])
-                    year_founded = appointment_infos[i]
+                if appointment_infos[i][0] in year:
+                    print("year found : " + appointment_infos[i][0])
+                    year_founded_parsed = int(appointment_infos[i][0])
+                    del appointment_infos[i]
                     break
 
         # found month in appointment infos
         for i in range(0, len(appointment_infos)):
             for month in self.months:
-                if appointment_infos[i] in month:
-                    print("month found : " + appointment_infos[i])
-                    month_founded_parsed = month.index(appointment_infos[i]) + 1
-                    month_founded = appointment_infos[i]
+                if appointment_infos[i][0] in month:
+                    print("month found : " + appointment_infos[i][0])
+                    month_founded_parsed = month.index(appointment_infos[i][0]) + 1
+                    del appointment_infos[i]
                     break
 
         # found day in appointment infos
         for i in range(0, len(appointment_infos)):
             for day in self.days_in_numbers:
-                if appointment_infos[i] in day:
+                if appointment_infos[i][0] in day:
                     # print("day found : " + appointment_infos[i])
-                    day_founded_parsed = int(appointment_infos[i])
-                    day_founded = appointment_infos[i]
+                    day_founded_parsed = int(appointment_infos[i][0])
+                    del appointment_infos[i]
                     break
 
-        # found weekday (litteral) in appointment infos
+        # found weeday in appointment infos
         for i in range(0, len(appointment_infos)):
-            for day in self.weekdays:
-                if appointment_infos[i] in day:
-                    weekday_founded = appointment_infos[i]
+            for weekday in self.weekdays:
+                if appointment_infos[i][0] in weekday:
+                    weekday_founded = appointment_infos[i][0]
+                    del appointment_infos[i]
                     break
-
-        # store name
-        for i in range(0, len(appointment_infos)):
-            if year_founded in appointment_infos[i]:
-                # print(appointment_infos[i])
-                continue
-            elif month_founded in appointment_infos[i]:
-                # print(appointment_infos[i])
-                continue
-            elif day_founded in appointment_infos[i]:
-                # print(appointment_infos[i])
-                continue
-            elif weekday_founded != "" and weekday_founded in appointment_infos[i]:
-                print(appointment_infos[i])
-                continue
-            else:
-                name_founded_array.append(appointment_infos[i])
 
         # Handles if there is no year in given date (store today's year implicitly)
         if year_founded_parsed == 0:
             year_founded_parsed = int(datetime.date.today().year)
 
-        # handles ignored words
-        name_founded = self.name_sorted_by_ignored_keywords(name_founded_array)
+        print("weekday founded : " + weekday_founded)
 
-        return year_founded_parsed, month_founded_parsed, day_founded_parsed, name_founded
+        return year_founded_parsed, month_founded_parsed, day_founded_parsed
 
     def guess_date_and_name_with_dates_keywords(self, appointment_infos):
         full_query = ""
@@ -351,7 +338,6 @@ class Jarvis:
             url += ("/api/appointments/period="+period)  # period dates in body
         response = requests.get(url)
         appointments = response.json()
-        print(appointments)
         return appointments
 
     @staticmethod
@@ -401,29 +387,3 @@ class Jarvis:
             date_keyword_string += list_by_keywords[i] + " "
 
         return date_keyword_string
-
-    def name_sorted_by_ignored_keywords(self, name_founded_array):
-        ignored_words_founded = {}
-        name_founded = ""
-
-        for i in range(0, len(name_founded_array)):
-            for word in self.ignored_words:
-                if word == name_founded_array[i]:
-                    ignored_words_founded.update({word: i})
-                elif name_founded_array[i] == "":
-                    ignored_words_founded.update({"": i})
-                elif name_founded_array[i] == " ":
-                    ignored_words_founded.update({" ": i})
-
-        # print(ignored_words_founded)
-
-        index = 0
-
-        for key, value in ignored_words_founded.items():
-            name_founded_array.pop(value - index)
-            index += 1
-
-        for i in range(0, len(name_founded_array)):
-            name_founded += name_founded_array[i] + " "
-
-        return name_founded
