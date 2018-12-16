@@ -45,7 +45,63 @@ class Jarvis:
         os.remove("audio.mp3")
         # Have to play with this for perfs / rapidity issues
 
-    #            /////* MAIN FUNCTION */
+    #            /////* MAIN FUNCTIONS */
+
+    def list_appointments(self, audiosource):
+        list_by_keywords = audiosource.split("rendez-vous")[1]
+        list_by_keywords = list_by_keywords.split(" ")
+
+        keyword_detected = ""
+
+        date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
+        print(date_keyword_string)
+
+        for key, value in self.dict_date_keywords.items():
+            if key in date_keyword_string:
+                keyword_detected = key
+
+        if keyword_detected != "":
+            appointments_for_period = self.get_appointments_for_period(keyword_detected)
+        else:
+            appointments_for_period = self.appointments  # no query in db needed, just list them all
+
+        appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
+
+        if appointment_list != "":
+            return self.speak(appointment_list)
+        else:
+            return self.speak("Vous n'avez pas de rendez-vous pour cette période.")
+
+    def create_appointment(self, audiosource):
+        appointment_infos = self.split_once_appointment_infos(audiosource)
+        first_guess = self.guess_date(appointment_infos)
+        actually_guessed_year = first_guess[0]
+        actually_guessed_month = first_guess[1]
+        actually_guessed_day = first_guess[2]
+
+        actually_guessed_name = first_guess[3]
+
+        try:
+            appointment_date = datetime.date(actually_guessed_year, actually_guessed_month, actually_guessed_day)
+        except ValueError:
+            print("Oops!  That was no valid date.  Try again...")
+            second_guess = self.guess_date_and_name_with_dates_keywords(appointment_infos)
+            appointment_date = second_guess[0]
+            actually_guessed_name = second_guess[1]
+            actually_guessed_day = str(appointment_date.day)
+        except AttributeError:
+            print("Oops!  That was no valid date.  Try again...")
+            second_guess = self.guess_date_and_name_with_dates_keywords(appointment_infos)
+            appointment_date = second_guess[0]
+            actually_guessed_name = second_guess[1]
+            actually_guessed_day = str(appointment_date.day)
+
+        appointment = appointment_date, actually_guessed_name
+        print(appointment)
+        self.post_appointment(appointment)
+        return self.speak("J'ai créé un rendez vous, " + actually_guessed_name + " le " + str(
+            appointment_date.strftime('%A ')) + str(actually_guessed_day) + ' ' + str(
+            appointment_date.strftime('%B ' '%Y')))
 
     def think(self, audiosource):
         if "comment ça va" in audiosource:
@@ -58,218 +114,27 @@ class Jarvis:
         elif "quelle heure il est" in audiosource:
             self.speak('il est ' + time.strftime('%-H') + ' heure ' + time.strftime('%M'))
 
+        # LIST Appointments
+
         if "liste moi les rendez-vous" in audiosource:
-            list_by_keywords = audiosource.split("rendez-vous")[1]
-            list_by_keywords = list_by_keywords.split(" ")
-
-            keyword_detected = ""
-
-            date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
-            print(date_keyword_string)
-
-            for key, value in self.dict_date_keywords.items():
-                if key in date_keyword_string:
-                    keyword_detected = key
-
-            if keyword_detected != "":
-                appointments_for_period = self.get_appointments_for_period(keyword_detected)
-            else:
-                appointments_for_period = self.appointments # no query in db needed, just list them all
-
-            appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
-
-            if appointment_list != "":
-                self.speak(appointment_list)
-            else:
-                self.speak("Vous n'avez pas de rendez-vous pour cette période.")
+            self.list_appointments(audiosource)
 
         elif "liste les rendez-vous" in audiosource:
-            list_by_keywords = audiosource.split("rendez-vous")[1]
-            list_by_keywords = list_by_keywords.split(" ")
-
-            keyword_detected = ""
-
-            date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
-            print(date_keyword_string)
-
-            for key, value in self.dict_date_keywords.items():
-                if key in date_keyword_string:
-                    keyword_detected = key
-
-            if keyword_detected != "":
-                appointments_for_period = self.get_appointments_for_period(keyword_detected)
-            else:
-                appointments_for_period = self.appointments # no query in db needed, just list them all
-
-            appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
-
-            if appointment_list != "":
-                self.speak(appointment_list)
-            else:
-                self.speak("Vous n'avez pas de rendez-vous pour cette période.")
+            self.list_appointments(audiosource)
 
         elif "liste des rendez-vous" in audiosource:
-            list_by_keywords = audiosource.split("rendez-vous")[1]
-            list_by_keywords = list_by_keywords.split(" ")
-
-            keyword_detected = ""
-
-            date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
-            print(date_keyword_string)
-
-            for key, value in self.dict_date_keywords.items():
-                if key in date_keyword_string:
-                    keyword_detected = key
-
-            if keyword_detected != "":
-                appointments_for_period = self.get_appointments_for_period(keyword_detected)
-            else:
-                appointments_for_period = self.appointments  # no query in db needed, just list them all
-
-            appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
-
-            if appointment_list != "":
-                self.speak(appointment_list)
-            else:
-                self.speak("Vous n'avez pas de rendez-vous pour cette période.")
-
-        elif "liste moi les événements" in audiosource:
-            list_by_keywords = audiosource.split("rendez-vous")[1]
-            list_by_keywords = list_by_keywords.split(" ")
-
-            keyword_detected = ""
-
-            date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
-            print(date_keyword_string)
-
-            for key, value in self.dict_date_keywords.items():
-                if key in date_keyword_string:
-                    keyword_detected = key
-
-            if keyword_detected != "":
-                appointments_for_period = self.get_appointments_for_period(keyword_detected)
-            else:
-                appointments_for_period = self.appointments  # no query in db needed, just list them all
-
-            appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
-
-            if appointment_list != "":
-                self.speak(appointment_list)
-            else:
-                self.speak("Vous n'avez pas de rendez-vous pour cette période.")
+            self.list_appointments(audiosource)
 
         elif "liste les événements" in audiosource:
-            list_by_keywords = audiosource.split("rendez-vous")[1]
-            list_by_keywords = list_by_keywords.split(" ")
+            self.list_appointments(audiosource)
 
-            keyword_detected = ""
-
-            date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
-            print(date_keyword_string)
-
-            for key, value in self.dict_date_keywords.items():
-                if key in date_keyword_string:
-                    keyword_detected = key
-
-            if keyword_detected != "":
-                appointments_for_period = self.get_appointments_for_period(keyword_detected)
-            else:
-                appointments_for_period = self.appointments  # no query in db needed, just list them all
-
-            appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
-
-            if appointment_list != "":
-                self.speak(appointment_list)
-            else:
-                self.speak("Vous n'avez pas de rendez-vous pour cette période.")
-
-        elif "liste des événements" in audiosource:
-            list_by_keywords = audiosource.split("rendez-vous")[1]
-            list_by_keywords = list_by_keywords.split(" ")
-
-            keyword_detected = ""
-
-            date_keyword_string = self.list_sorted_by_ignored_keywords(list_by_keywords)
-            print(date_keyword_string)
-
-            for key, value in self.dict_date_keywords.items():
-                if key in date_keyword_string:
-                    keyword_detected = key
-
-            if keyword_detected != "":
-                appointments_for_period = self.get_appointments_for_period(keyword_detected)
-            else:
-                appointments_for_period = self.appointments  # no query in db needed, just list them all
-
-            appointment_list = self.get_appointments_list_names_dates(appointments_for_period)
-
-            if appointment_list != "":
-                self.speak(appointment_list)
-            else:
-                self.speak("Vous n'avez pas de rendez-vous pour cette période.")
-
-        # CREATE APPOINTMENT
+        # CREATE Appointment
 
         if "créer un rendez-vous" in audiosource:
-            appointment_infos = self.split_once_appointment_infos(audiosource)
-            first_guess = self.guess_date(appointment_infos)
-            actually_guessed_year = first_guess[0]
-            actually_guessed_month = first_guess[1]
-            actually_guessed_day = first_guess[2]
-
-            actually_guessed_name = first_guess[3]
-
-            try:
-                appointment_date = datetime.date(actually_guessed_year, actually_guessed_month, actually_guessed_day)
-            except ValueError:
-                print("Oops!  That was no valid date.  Try again...")
-                second_guess = self.guess_date_and_name_with_dates_keywords(appointment_infos)
-                appointment_date = second_guess[0]
-                actually_guessed_name = second_guess[1]
-                actually_guessed_day = str(appointment_date.day)
-            except AttributeError:
-                print("Oops!  That was no valid date.  Try again...")
-                second_guess = self.guess_date_and_name_with_dates_keywords(appointment_infos)
-                appointment_date = second_guess[0]
-                actually_guessed_name = second_guess[1]
-                actually_guessed_day = str(appointment_date.day)
-
-            appointment = appointment_date, actually_guessed_name
-            print(appointment)
-            self.post_appointment(appointment)
-            self.speak("J'ai créé un rendez vous, " + actually_guessed_name + " le " + str(
-                appointment_date.strftime('%A ')) + str(actually_guessed_day) + ' ' + str(
-                appointment_date.strftime('%B ' '%Y')))
+            self.create_appointment(audiosource)
 
         elif "nouveau rendez-vous" in audiosource:
-            appointment_infos = self.split_once_appointment_infos(audiosource)
-            first_guess = self.guess_date(appointment_infos)
-            actually_guessed_year = first_guess[0]
-            actually_guessed_month = first_guess[1]
-            actually_guessed_day = first_guess[2]
-
-            actually_guessed_name = first_guess[3]
-
-            try:
-                appointment_date = datetime.date(actually_guessed_year, actually_guessed_month, actually_guessed_day)
-            except ValueError:
-                print("Oops!  That was no valid date.  Try again...")
-                second_guess = self.guess_date_and_name_with_dates_keywords(appointment_infos)
-                appointment_date = second_guess[0]
-                actually_guessed_name = second_guess[1]
-                actually_guessed_day = str(appointment_date.day)
-            except AttributeError:
-                print("Oops!  That was no valid date.  Try again...")
-                second_guess = self.guess_date_and_name_with_dates_keywords(appointment_infos)
-                appointment_date = second_guess[0]
-                actually_guessed_name = second_guess[1]
-                actually_guessed_day = str(appointment_date.day)
-
-            appointment = appointment_date, actually_guessed_name
-            self.post_appointment(appointment)
-            self.speak("J'ai créé un rendez vous, " + actually_guessed_name + " le " + str(
-                appointment_date.strftime('%A ')) + str(actually_guessed_day) + ' ' + str(
-                appointment_date.strftime('%B ' '%Y')))
+            self.create_appointment(audiosource)
 
     @staticmethod
     def split_once_appointment_infos(full_message):
@@ -289,7 +154,7 @@ class Jarvis:
         year_founded_parsed = 0
         year_founded = ""
 
-        # each time there is a parsed version (to esealy convert to date)
+        # each time there is a parsed version (to easily convert to date)
         # and a non parsed to store what's left
 
         month_founded_parsed = 0
@@ -345,10 +210,10 @@ class Jarvis:
                 # print(appointment_infos[i])
                 continue
             elif month_founded in appointment_infos[i]:
-                #print(appointment_infos[i])
+                # print(appointment_infos[i])
                 continue
             elif day_founded in appointment_infos[i]:
-                #print(appointment_infos[i])
+                # print(appointment_infos[i])
                 continue
             elif weekday_founded != "" and weekday_founded in appointment_infos[i]:
                 print(appointment_infos[i])
@@ -444,7 +309,8 @@ class Jarvis:
         return appointment_date, name_detected
 
 #            /////* INIT PART */
-    def get_dates_keywords(self):
+    @staticmethod
+    def get_dates_keywords():
         date = datetime.date.fromtimestamp(1483311600) # Lundi 2 Janvier 2017, has a ref to produce date arrays
         weekdays = []
         months = []
@@ -461,7 +327,7 @@ class Jarvis:
         for i in range(0, 31):
             days_in_numbers.append(str(i + 1))
 
-        for i in range(0, 5): ## 2017 - 2021
+        for i in range(0, 5):  # 2017 - 2021
             newdate = date.replace(date.year + i, date.month, date.day)
             years.append(str(newdate.strftime('%Y')))
 
